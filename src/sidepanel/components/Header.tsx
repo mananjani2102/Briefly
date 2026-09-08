@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { summarizeCost, formatDollars, formatTokens } from '../../lib/cost'
+import { summarizeCost, formatDollars, formatTokens, formatPercent } from '../../lib/cost'
 import {
   conversationToHtml,
   conversationToMarkdown,
@@ -38,6 +38,11 @@ export default function Header() {
     entries.push({
       title: `≈ ${formatDollars(cost.dollars)} · ${formatTokens(cost.inputTokens)} in / ${formatTokens(cost.outputTokens)} out`
     })
+    if (cost.cacheHitRatio > 0) {
+      entries.push({
+        title: `Cache hit ${formatPercent(cost.cacheHitRatio)} (saved ≈ ${formatDollars(cost.cacheSavingsDollars)})`
+      })
+    }
   }
   entries.push(
     { title: 'Export conversation' },

@@ -21,6 +21,15 @@ export function requestCostDollars(
   )
 }
 
+export interface ModelCostBreakdown {
+  model: string
+  label: string
+  dollars: number
+  inputTokens: number
+  outputTokens: number
+  requestCount: number
+}
+
 export interface CostSummary {
   dollars: number
   inputTokens: number
@@ -31,6 +40,9 @@ export interface CostSummary {
   estimatedPreflightTokens: number
   requestCount: number
   retryCount: number
+  breakdown: Record<string, ModelCostBreakdown>
+  cacheHitRatio: number
+  cacheSavingsDollars: number
 }
 
 export function summarizeCost(items: { model: string | null; usage: Usage | null }[]): CostSummary {
@@ -43,26 +55,64 @@ export function summarizeCost(items: { model: string | null; usage: Usage | null
   let estimatedPreflightTokens = 0
   let requestCount = 0
   let retryCount = 0
+  let cacheSavingsDollars = 0
+  const breakdown: Record<string, ModelCostBreakdown> = {}
+
   for (const item of items) {
     if (!item.usage || !item.model || !isModelId(item.model)) continue
+    const modelId = item.model
+    const modelInfo = MODELS[modelId]
     const input = item.usage.input_tokens ?? 0
     const cacheRead = item.usage.cache_read_input_tokens ?? 0
     const cacheWrite = item.usage.cache_creation_input_tokens ?? 0
     const output = item.usage.output_tokens ?? 0
+
     uncachedInputTokens += input
     cacheCreationInputTokens += cacheWrite
     cacheReadInputTokens += cacheRead
     inputTokens += input + cacheRead + cacheWrite
     outputTokens += output
-    for (const request of item.usage.requests ?? []) {
-      estimatedPreflightTokens += request.estimatedInputTokens
+
+    let itemCost = 0
+    if (item.usage.requests && item.usage.requests.length > 0) {
+      for (const request of item.usage.requests) {
+        estimatedPreflightTokens += request.estimatedInputTokens
+        requestCount += 1
+        retryCount += request.retryCount
+        itemCost += request.costDollars
+      }
+    } else {
+      itemCost = requestCostDollars(modelId, item.usage)
       requestCount += 1
-      retryCount += request.retryCount
     }
-    dollars += item.usage.requests && item.usage.requests.length > 0
-      ? item.usage.requests.reduce((sum, request) => sum + request.costDollars, 0)
-      : requestCostDollars(item.model, item.usage)
+    dollars += itemCost
+
+    // Cache savings = cost if cacheRead tokens had been charged at full input rate vs 10% rate
+    if (cacheRead > 0) {
+      const savedInputRate = modelInfo.pricePerMTokIn * 0.9
+      cacheSavingsDollars += (cacheRead / 1_000_000) * savedInputRate
+    }
+
+    if (!breakdown[modelId]) {
+      breakdown[modelId] = {
+        model: modelId,
+        label: modelInfo.label,
+        dollars: 0,
+        inputTokens: 0,
+        outputTokens: 0,
+        requestCount: 0
+      }
+    }
+    const b = breakdown[modelId]
+    b.dollars += itemCost
+    b.inputTokens += input + cacheRead + cacheWrite
+    b.outputTokens += output
+    b.requestCount += 1
   }
+
+  const totalInputTokens = uncachedInputTokens + cacheReadInputTokens + cacheCreationInputTokens
+  const cacheHitRatio = totalInputTokens > 0 ? cacheReadInputTokens / totalInputTokens : 0
+
   return {
     dollars,
     inputTokens,
@@ -72,8 +122,15 @@ export function summarizeCost(items: { model: string | null; usage: Usage | null
     cacheReadInputTokens,
     estimatedPreflightTokens,
     requestCount,
-    retryCount
+    retryCount,
+    breakdown,
+    cacheHitRatio,
+    cacheSavingsDollars
   }
+}
+
+export function formatPercent(ratio: number): string {
+  return `${Math.round(ratio * 100)}%`
 }
 
 export function formatTokens(n: number): string {
