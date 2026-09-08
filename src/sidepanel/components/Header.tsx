@@ -1,6 +1,12 @@
 import { useMemo } from 'react'
 import { summarizeCost, formatDollars, formatTokens } from '../../lib/cost'
-import { conversationToMarkdown, downloadFile, safeFilename } from '../../lib/export'
+import {
+  conversationToHtml,
+  conversationToMarkdown,
+  conversationToPlainText,
+  downloadFile,
+  safeFilename
+} from '../../lib/export'
 import Icon from '../../ui/Icon'
 import IconButton from '../../ui/IconButton'
 import Menu, { type MenuEntry } from '../../ui/Menu'
@@ -34,18 +40,31 @@ export default function Header() {
     })
   }
   entries.push(
-    { id: 'export', label: 'Export as Markdown', icon: 'download', disabled: messages.length === 0 },
+    { title: 'Export conversation' },
+    { id: 'export-md', label: 'Export as Markdown (.md)', icon: 'download', disabled: messages.length === 0 },
+    { id: 'export-html', label: 'Export as HTML (.html)', icon: 'download', disabled: messages.length === 0 },
+    { id: 'export-txt', label: 'Export as Plain Text (.txt)', icon: 'download', disabled: messages.length === 0 },
     { sep: true },
     { id: 'settings', label: 'Settings', icon: 'sliders' }
   )
 
   const onMenu = (id: string) => {
-    if (id === 'settings') void chrome.tabs.create({ url: chrome.runtime.getURL('src/settings/index.html') })
-    else if (id === 'export' && conversation) {
-      void (async () => {
-        const md = conversationToMarkdown(conversation, messages)
-        downloadFile(safeFilename(conversation.title || 'briefly-chat', 'md'), 'text/markdown', md)
-      })()
+    if (id === 'settings') {
+      void chrome.tabs.create({ url: chrome.runtime.getURL('src/settings/index.html') })
+      return
+    }
+    if (!conversation || messages.length === 0) return
+
+    const baseTitle = conversation.title || 'briefly-chat'
+    if (id === 'export-md') {
+      const content = conversationToMarkdown(conversation, messages)
+      downloadFile(safeFilename(baseTitle, 'md'), 'text/markdown', content)
+    } else if (id === 'export-html') {
+      const content = conversationToHtml(conversation, messages)
+      downloadFile(safeFilename(baseTitle, 'html'), 'text/html', content)
+    } else if (id === 'export-txt') {
+      const content = conversationToPlainText(conversation, messages)
+      downloadFile(safeFilename(baseTitle, 'txt'), 'text/plain', content)
     }
   }
 
