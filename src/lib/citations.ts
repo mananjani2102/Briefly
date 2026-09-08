@@ -25,16 +25,60 @@ export function buildSegments(blocks: AnyBlock[]): Segment[] {
     }))
 }
 
+const TRACKING_PARAMS = new Set([
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_term',
+  'utm_content',
+  'ref',
+  'ref_src',
+  'fbclid',
+  'gclid',
+  'msclkid',
+  '_hsenc',
+  '_hsmi',
+  'mc_cid',
+  'mc_eid'
+])
+
+export function sanitizeCitationUrl(rawUrl: string): string | null {
+  if (!rawUrl || typeof rawUrl !== 'string') return null
+  const trimmed = rawUrl.trim()
+  try {
+    const parsed = new URL(trimmed)
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null
+    for (const key of Array.from(parsed.searchParams.keys())) {
+      if (TRACKING_PARAMS.has(key.toLowerCase()) || key.toLowerCase().startsWith('utm_')) {
+        parsed.searchParams.delete(key)
+      }
+    }
+    return parsed.toString()
+  } catch {
+    return null
+  }
+}
+
+export function formatSourceTitle(title: string | null | undefined, url: string): string {
+  if (title && title.trim()) {
+    return title.trim().replace(/\s+[-|·•]\s+[^|·•-]+$/, '').trim() || title.trim()
+  }
+  return hostOf(url)
+}
+
 export function collectSources(blocks: AnyBlock[]): Source[] {
   const sources: Source[] = []
   const seen = new Set<string>()
   for (const block of blocks) {
     if (!isTextBlock(block) || !Array.isArray(block.citations)) continue
     for (const c of block.citations as TextCitation[]) {
-      const url = typeof c.url === 'string' ? c.url : null
-      if (!url || seen.has(url)) continue
-      seen.add(url)
-      sources.push({ url, title: typeof c.title === 'string' && c.title ? c.title : url })
+      const rawUrl = typeof c.url === 'string' ? c.url : null
+      if (!rawUrl) continue
+      const cleanUrl = sanitizeCitationUrl(rawUrl)
+      if (!cleanUrl || seen.has(cleanUrl)) continue
+      seen.add(cleanUrl)
+      const rawTitle = typeof c.title === 'string' ? c.title : null
+      sources.push({ url: cleanUrl, title: formatSourceTitle(rawTitle, cleanUrl) })
     }
   }
   return sources
@@ -42,7 +86,8 @@ export function collectSources(blocks: AnyBlock[]): Source[] {
 
 export function sourceNumber(sources: Source[], url: string | undefined): number | null {
   if (!url) return null
-  const idx = sources.findIndex((s) => s.url === url)
+  const clean = sanitizeCitationUrl(url) ?? url
+  const idx = sources.findIndex((s) => s.url === clean || s.url === url)
   return idx === -1 ? null : idx + 1
 }
 
@@ -53,3 +98,4 @@ export function hostOf(url: string): string {
     return url
   }
 }
+
