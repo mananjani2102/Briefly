@@ -49,8 +49,20 @@ export type IconName =
   | 'chat'
   | 'cursor'
   | 'logout'
+  | 'expand'
+  | 'collapse'
 
 const stroked: Partial<Record<IconName, ReactNode>> = {
+  expand: (
+    <>
+      <path d="M13 3h4v4M7 17H3v-4M17 3l-6 6M3 17l6-6" />
+    </>
+  ),
+  collapse: (
+    <>
+      <path d="M4 10h6V4M16 10h-6v6M10 10 3 3M10 10l7 7" />
+    </>
+  ),
   send: <path d="M10 16V4M5 8.5 10 4l5 4.5" />,
   mic: (
     <>

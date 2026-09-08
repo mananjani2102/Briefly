@@ -4,25 +4,75 @@ import remarkGfm from 'remark-gfm'
 import { highlightCode } from '../../lib/highlight'
 import IconButton from '../../ui/IconButton'
 
+const LANG_LABELS: Record<string, string> = {
+  js: 'JavaScript',
+  javascript: 'JavaScript',
+  ts: 'TypeScript',
+  typescript: 'TypeScript',
+  tsx: 'TypeScript (React)',
+  jsx: 'JavaScript (React)',
+  py: 'Python',
+  python: 'Python',
+  sh: 'Shell',
+  bash: 'Bash',
+  zsh: 'Zsh',
+  html: 'HTML',
+  css: 'CSS',
+  scss: 'SCSS',
+  json: 'JSON',
+  yaml: 'YAML',
+  yml: 'YAML',
+  sql: 'SQL',
+  rust: 'Rust',
+  rs: 'Rust',
+  go: 'Go',
+  cpp: 'C++',
+  c: 'C',
+  java: 'Java',
+  markdown: 'Markdown',
+  md: 'Markdown'
+}
+
+function formatLang(lang: string | null): string {
+  if (!lang) return 'Plain text'
+  const lower = lang.toLowerCase()
+  return LANG_LABELS[lower] ?? lang
+}
+
 function CodeBlock({ code, lang }: { code: string; lang: string | null }) {
   const [copied, setCopied] = useState(false)
+  const [wrapped, setWrapped] = useState(false)
   const { html, language } = useMemo(() => highlightCode(code, lang), [code, lang])
+  const lineCount = useMemo(() => code.split('\n').length, [code])
+
   const copy = () => {
     void navigator.clipboard.writeText(code).then(() => {
       setCopied(true)
       window.setTimeout(() => setCopied(false), 1400)
     })
   }
+
   return (
-    <div className="code">
+    <div className={`code ${wrapped ? 'code-wrapped' : ''}`}>
       <div className="code-head">
-        <span className="code-lang">{language ?? 'text'}</span>
-        <IconButton
-          icon={copied ? 'check' : 'copy'}
-          label={copied ? 'Copied' : 'Copy code'}
-          size="sm"
-          onClick={copy}
-        />
+        <div className="code-info">
+          <span className="code-lang">{formatLang(language)}</span>
+          {lineCount > 1 && <span className="code-lines">{lineCount} lines</span>}
+        </div>
+        <div className="code-actions">
+          <IconButton
+            icon={wrapped ? 'collapse' : 'expand'}
+            label={wrapped ? 'Unwrap lines' : 'Wrap lines'}
+            size="sm"
+            onClick={() => setWrapped((w) => !w)}
+          />
+          <IconButton
+            icon={copied ? 'check' : 'copy'}
+            label={copied ? 'Copied' : 'Copy code'}
+            size="sm"
+            onClick={copy}
+          />
+        </div>
       </div>
       <pre>
         <code dangerouslySetInnerHTML={{ __html: html }} />

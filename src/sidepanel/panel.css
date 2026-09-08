@@ -554,16 +554,43 @@
   background: var(--paper-raised);
 }
 
+.code-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .code-lang {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  color: var(--ink-3);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.code-lines {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-4);
+  background: var(--paper-sunken);
+  padding: 1px 6px;
+  border-radius: var(--r-s);
+}
+
+.code-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .code pre {
   margin: 0;
   padding: 11px 13px;
   overflow-x: auto;
+}
+
+.code.code-wrapped pre {
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 .code pre code {
