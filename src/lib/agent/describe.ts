@@ -31,6 +31,10 @@ export function describeTool(name: string, input: Record<string, unknown>): Step
       return { icon: 'arrow-left', label: 'Going back' }
     case 'wait':
       return { icon: 'clock', label: `Waiting ${Math.min(Number(input.seconds) || 1, 5)}s` }
+    case 'get_element_text':
+      return { icon: 'page', label: `Reading text of [${input.element_id}]` }
+    case 'wait_for_selector':
+      return { icon: 'clock', label: `Waiting for ${short(input.selector, 30)}` }
     case 'list_tabs':
       return { icon: 'copy', label: 'Listing open tabs' }
     case 'open_tab':

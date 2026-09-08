@@ -108,5 +108,28 @@ export const AGENT_TOOLS: ToolDefinition[] = [
       required: ['tab_id'],
       additionalProperties: false
     }
+  },
+  {
+    name: 'get_element_text',
+    description: 'Get the full text content or current value of an element by its snapshot id.',
+    input_schema: {
+      type: 'object',
+      properties: { element_id: { type: 'integer', description: 'Id from latest snapshot' } },
+      required: ['element_id'],
+      additionalProperties: false
+    }
+  },
+  {
+    name: 'wait_for_selector',
+    description: 'Wait for an element matching a CSS selector to appear on the page (e.g. search results loaded).',
+    input_schema: {
+      type: 'object',
+      properties: {
+        selector: { type: 'string', description: 'CSS selector to wait for' },
+        timeout_seconds: { type: 'number', minimum: 0.5, maximum: 10, description: 'Timeout in seconds' }
+      },
+      required: ['selector'],
+      additionalProperties: false
+    }
   }
 ]

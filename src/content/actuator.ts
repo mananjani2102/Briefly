@@ -380,5 +380,42 @@ export async function handleAgentAction(action: ActuatorAction): Promise<Actuato
       await settle(1500, 350)
       return { ok: true, outcome: 'Scrolled.', snapshot: buildSnapshot(), refusal: null }
     }
+    case 'get_element_text': {
+      const el = resolve(action.elementId)
+      if (!el) return staleResult(action.elementId)
+      const text =
+        (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement ? el.value : el.textContent) ?? ''
+      const trimmed = text.replace(/\s+/g, ' ').trim().slice(0, 1000)
+      return {
+        ok: true,
+        outcome: `Element [${action.elementId}] text: "${trimmed}".`,
+        snapshot: null,
+        refusal: null
+      }
+    }
+    case 'wait_for_selector': {
+      const selector = action.selector
+      const timeout = Math.min(Math.max(action.timeoutSeconds ?? 3, 0.5), 10) * 1000
+      const start = Date.now()
+      let found = document.querySelector(selector)
+      while (!found && Date.now() - start < timeout) {
+        await new Promise((r) => setTimeout(r, 120))
+        found = document.querySelector(selector)
+      }
+      if (found) {
+        return {
+          ok: true,
+          outcome: `Found element matching selector "${selector}".`,
+          snapshot: buildSnapshot(),
+          refusal: null
+        }
+      }
+      return {
+        ok: false,
+        outcome: `Timed out waiting for selector "${selector}".`,
+        snapshot: buildSnapshot(),
+        refusal: null
+      }
+    }
   }
 }

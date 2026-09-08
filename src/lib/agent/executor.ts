@@ -102,7 +102,9 @@ export async function executeTool(tool: ToolUseBlock, ctx: ExecContext): Promise
     case 'click':
     case 'type_text':
     case 'select_option':
-    case 'scroll': {
+    case 'scroll':
+    case 'get_element_text':
+    case 'wait_for_selector': {
       if (tabId === null) return err('No working tab. Use navigate or open_tab first.')
       let action: ActuatorAction
       if (tool.name === 'read_page') action = { tool: 'read_page' }
@@ -118,6 +120,14 @@ export async function executeTool(tool: ToolUseBlock, ctx: ExecContext): Promise
         }
       } else if (tool.name === 'select_option') {
         action = { tool: 'select_option', elementId: Number(input.element_id), value: String(input.value ?? '') }
+      } else if (tool.name === 'get_element_text') {
+        action = { tool: 'get_element_text', elementId: Number(input.element_id) }
+      } else if (tool.name === 'wait_for_selector') {
+        action = {
+          tool: 'wait_for_selector',
+          selector: String(input.selector ?? ''),
+          ...(input.timeout_seconds !== undefined ? { timeoutSeconds: Number(input.timeout_seconds) } : {})
+        }
       } else {
         action = {
           tool: 'scroll',
