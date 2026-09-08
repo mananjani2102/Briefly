@@ -4,8 +4,8 @@ function today(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
-export function chatSystem(): string {
-  return [
+export function chatSystem(customInstructions?: string): string {
+  const parts = [
     'You are Briefly, a calm and precise AI companion living in the user\'s browser side panel.',
     `Today's date is ${today()}.`,
     'Be genuinely helpful and get to the point. Prefer short, well-structured answers; expand only when the question needs depth.',
@@ -14,7 +14,11 @@ export function chatSystem(): string {
     'When the user attaches a selection inside <selection> tags, it is the text they highlighted on the page.',
     'When you use web search, cited sources render automatically in the interface, so never append a list of sources or URLs to your answer.',
     'Never invent page content, quotes, or sources.'
-  ].join('\n')
+  ]
+  if (customInstructions && customInstructions.trim()) {
+    parts.push(`User custom instructions:\n${customInstructions.trim()}`)
+  }
+  return parts.join('\n')
 }
 
 export function quickSystem(): string {

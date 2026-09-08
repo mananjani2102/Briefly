@@ -200,7 +200,7 @@ export const useStore = create<PanelStore>((set, get) => {
         const req = buildRequest({
           model,
           mode: 'chat',
-          system: chatSystem(),
+          system: chatSystem(settings.customInstructions),
           messages: msgs,
           webSearch,
           disabledServerTools

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildRequest } from '../src/lib/anthropic/params'
+import { chatSystem } from '../src/lib/anthropic/prompts'
 import type { ApiMessage } from '../src/lib/anthropic/types'
 
 const messages: ApiMessage[] = [{ role: 'user', content: [{ type: 'text', text: 'hi' }] }]
@@ -80,4 +81,15 @@ describe('buildRequest', () => {
     })
     expect(req.tools?.map((t) => t.name)).toEqual(['click'])
   })
+
+  it('incorporates customInstructions into chatSystem prompt', () => {
+    const defaultSys = chatSystem()
+    expect(defaultSys).toContain('You are Briefly')
+    expect(defaultSys).not.toContain('User custom instructions:')
+
+    const customized = chatSystem('Always reply in bullet points and use emojis.')
+    expect(customized).toContain('You are Briefly')
+    expect(customized).toContain('User custom instructions:\nAlways reply in bullet points and use emojis.')
+  })
 })
+

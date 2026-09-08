@@ -15,6 +15,7 @@ export interface Settings {
   permissionMode: { default: PermissionChoice; perSite: Record<string, PermissionChoice> }
   voice: { id: string; rate: number }
   customActions: CustomAction[]
+  customInstructions: string
   siteContextBlocklist: string[]
   selectionPopupEnabled: boolean
   selectionPopupBlocklist: string[]
@@ -31,6 +32,7 @@ export const DEFAULT_SETTINGS: Settings = {
   permissionMode: { default: 'ask_first', perSite: {} },
   voice: { id: 'en-US-JennyNeural', rate: 0 },
   customActions: [],
+  customInstructions: '',
   siteContextBlocklist: [],
   selectionPopupEnabled: true,
   selectionPopupBlocklist: [],

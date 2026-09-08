@@ -170,6 +170,18 @@ function GeneralSection({ settings }: { settings: Settings }) {
         />
       </Card>
 
+      <Card
+        title="Custom instructions"
+        desc="Persona or formatting guidelines to append to Briefly's system prompt (e.g. tone, role, detail level)."
+      >
+        <Textarea
+          placeholder="e.g. Be concise and direct. Use TypeScript when providing code. Prefer tables for comparisons."
+          value={settings.customInstructions ?? ''}
+          rows={3}
+          onChange={(e) => void updateSettings({ customInstructions: e.target.value })}
+        />
+      </Card>
+
       <Card title="Keyboard shortcut" desc="Toggle the Briefly side panel from any page.">
         <span className="st-shortcut">
           <span className="kbd">Alt</span>
