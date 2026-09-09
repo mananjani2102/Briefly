@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { db, type ConversationRow } from '../../lib/db'
+import { db, getConversationMessages, type ConversationRow } from '../../lib/db'
 import { textOfBlocks } from '../../lib/anthropic/types'
 import { conversationToMarkdown, downloadFile, safeFilename } from '../../lib/export'
 import { timeAgo } from '../../lib/time'
@@ -33,10 +33,14 @@ export default function History() {
       return
     }
     const t = query.trim().toLowerCase()
-    const hitIds = new Set(all.filter((c) => c.title.toLowerCase().includes(t)).map((c) => c.id))
+    const tokens = t.split(/\s+/).filter(Boolean)
+    const hitIds = new Set(
+      all.filter((c) => tokens.every((tok) => c.title.toLowerCase().includes(tok))).map((c) => c.id)
+    )
     await db.messages.each((m) => {
       if (hitIds.has(m.conversationId)) return
-      if (textOfBlocks(m.blocks).toLowerCase().includes(t)) hitIds.add(m.conversationId)
+      const text = textOfBlocks(m.blocks).toLowerCase()
+      if (tokens.every((tok) => text.includes(tok))) hitIds.add(m.conversationId)
     })
     setRows(all.filter((c) => hitIds.has(c.id)))
   }
@@ -51,7 +55,7 @@ export default function History() {
   }, [])
 
   async function exportOne(conv: ConversationRow): Promise<void> {
-    const messages = await db.messages.where('conversationId').equals(conv.id).sortBy('createdAt')
+    const messages = await getConversationMessages(conv.id)
     downloadFile(
       safeFilename(conv.title || 'briefly-chat', 'md'),
       'text/markdown',

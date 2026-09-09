@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { db, newId, type ConversationRow, type MessageRow } from '../lib/db'
+import { db, getConversationMessages, newId, type ConversationRow, type MessageRow } from '../lib/db'
 import { getSettings, updateSettings, watchSettings, type Settings } from '../lib/settings'
 import { TITLE_MODEL, isModelId, type ModelId } from '../lib/models'
 import { ApiError, streamMessage } from '../lib/anthropic/client'
@@ -476,7 +476,7 @@ export const useStore = create<PanelStore>((set, get) => {
       if (get().streaming) get().stop()
       const conv = await db.conversations.get(id)
       if (!conv) return
-      const messages = await db.messages.where('conversationId').equals(id).sortBy('createdAt')
+      const messages = await getConversationMessages(id)
       set({
         conversation: conv,
         messages,

@@ -52,10 +52,24 @@ class BrieflyDB extends Dexie {
       messages: 'id, conversationId, createdAt',
       audioCache: 'hash, lastUsed'
     })
+    this.version(2).stores({
+      conversations: 'id, updatedAt, pinned, createdAt',
+      messages: 'id, conversationId, createdAt, [conversationId+createdAt]',
+      audioCache: 'hash, lastUsed'
+    })
   }
 }
 
 export const db = new BrieflyDB()
+
+export async function getConversationMessages(conversationId: string): Promise<MessageRow[]> {
+  return db.messages.where('[conversationId+createdAt]').between([conversationId, Dexie.minKey], [conversationId, Dexie.maxKey]).toArray()
+    .catch(() => db.messages.where('conversationId').equals(conversationId).sortBy('createdAt'))
+}
+
+export async function countConversationMessages(conversationId: string): Promise<number> {
+  return db.messages.where('conversationId').equals(conversationId).count()
+}
 
 export function newId(): string {
   return crypto.randomUUID()
