@@ -183,6 +183,8 @@
 
 .surface-overlay {
   background: var(--paper-overlay);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--line);
   border-radius: var(--r-m);
   box-shadow: var(--shadow-2);
