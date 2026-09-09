@@ -64,6 +64,9 @@ export class Speaker {
       const chunk = chunks[i]
       const p: Promise<ChunkResult> = (async () => {
         if (chunk === undefined) return { kind: 'fallback' }
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          return { kind: 'fallback' }
+        }
         const hash = await cacheKey(voice.id, voice.rate, chunk)
         const cached = await getCached(hash)
         if (cached) return { kind: 'blob', blob: cached }
@@ -101,7 +104,13 @@ export class Speaker {
         return
       }
       const ok = await this.playBlob(result.blob, mySession)
-      if (!ok || this.session !== mySession) return
+      if (this.session !== mySession) return
+      if (!ok) {
+        this.fallback = true
+        await this.speakRest(chunks.slice(i), voice, mySession, i)
+        if (this.session === mySession) this.finish()
+        return
+      }
     }
     this.finish()
   }
