@@ -54,7 +54,9 @@ interface PanelStore {
   pageAdded: boolean
   attachments: Attachment[]
   agentMode: boolean
+  shortcutsOpen: boolean
   setAgentMode(v: boolean): void
+  setShortcutsOpen(v: boolean): void
   ensureConversation(): Promise<ConversationRow>
   appendRow(row: MessageRow): Promise<void>
   patchRow(id: string, patch: Partial<MessageRow>, persist?: boolean): Promise<void>
@@ -309,9 +311,14 @@ export const useStore = create<PanelStore>((set, get) => {
     pageAdded: false,
     attachments: [],
     agentMode: false,
+    shortcutsOpen: false,
 
     setAgentMode(agentMode) {
       set({ agentMode })
+    },
+
+    setShortcutsOpen(shortcutsOpen) {
+      set({ shortcutsOpen })
     },
 
     async ensureConversation() {

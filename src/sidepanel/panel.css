@@ -1803,3 +1803,40 @@
   gap: 8px;
   margin-top: 16px;
 }
+
+.shortcuts-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.shortcut-row:last-child {
+  border-bottom: none;
+}
+
+.shortcut-keys {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.shortcut-keys kbd {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  padding: 2px 6px;
+  border-radius: var(--r-s);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+

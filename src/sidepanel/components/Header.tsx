@@ -50,10 +50,15 @@ export default function Header() {
     { id: 'export-html', label: 'Export as HTML (.html)', icon: 'download', disabled: messages.length === 0 },
     { id: 'export-txt', label: 'Export as Plain Text (.txt)', icon: 'download', disabled: messages.length === 0 },
     { sep: true },
+    { id: 'shortcuts', label: 'Keyboard shortcuts', icon: 'list' },
     { id: 'settings', label: 'Settings', icon: 'sliders' }
   )
 
   const onMenu = (id: string) => {
+    if (id === 'shortcuts') {
+      useStore.getState().setShortcutsOpen(true)
+      return
+    }
     if (id === 'settings') {
       void chrome.tabs.create({ url: chrome.runtime.getURL('src/settings/index.html') })
       return
