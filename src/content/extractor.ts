@@ -20,17 +20,33 @@ export function extractPage(): ExtractResponse {
     if (!text && !selection) {
       return { ok: false, reason: 'empty', url, title: fallbackTitle, selection }
     }
+
+    const wordCount = text ? text.split(/\s+/).filter(Boolean).length : 0
+    const readingTimeMinutes = wordCount > 0 ? Math.max(1, Math.ceil(wordCount / 220)) : 1
+
+    const metaDesc =
+      document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+      document.querySelector('meta[name="description"]')?.getAttribute('content') ||
+      null
+
+    const metaSite =
+      document.querySelector('meta[property="og:site_name"]')?.getAttribute('content') ||
+      article?.siteName ||
+      null
+
     return {
       ok: true,
       url,
       title: article?.title || fallbackTitle || url,
-      siteName: article?.siteName ?? null,
+      siteName: metaSite,
       byline: article?.byline ?? null,
       text,
       excerpt: article?.excerpt ?? null,
       selection,
       truncated,
-      wordCount: text ? text.split(/\s+/).length : 0
+      wordCount,
+      description: metaDesc,
+      readingTimeMinutes
     }
   } catch {
     return { ok: false, reason: 'error', url, title: fallbackTitle, selection }

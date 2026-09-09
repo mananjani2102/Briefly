@@ -45,6 +45,11 @@ export default function ContextChip() {
         <div className="ctx-pill ctx-pill-live">
           <Menu
             entries={[
+              ...(pc.page.readingTimeMinutes
+                ? [{ title: `${pc.page.readingTimeMinutes} min read · ${pc.page.wordCount.toLocaleString()} words` }]
+                : []),
+              ...(pc.page.byline ? [{ title: `By ${pc.page.byline}` }] : []),
+              { sep: true },
               { id: 'remove', label: 'Stop using this page', icon: 'x' },
               { id: 'block', label: `Never attach on ${host}`, icon: 'eye-off' }
             ]}

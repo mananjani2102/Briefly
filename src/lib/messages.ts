@@ -12,6 +12,8 @@ export interface PageExtract {
   selection: string
   truncated: boolean
   wordCount: number
+  description?: string | null
+  readingTimeMinutes?: number
 }
 
 export interface PageExtractFailure {
