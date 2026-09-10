@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Briefly",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A calm AI companion in your side panel. Reads the page you're on, answers with live web search, acts on pages for you, speaks aloud, and listens.",
   "minimum_chrome_version": "116",
   "icons": {

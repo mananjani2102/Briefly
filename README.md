@@ -19,7 +19,7 @@ Reads the page you're on · answers with live web search and citations · acts o
 &nbsp;
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-EFB795?style=for-the-badge&logo=typescript&logoColor=201410)
 &nbsp;
-![Version](https://img.shields.io/badge/version-1.0.0-201410?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.1.0-201410?style=for-the-badge)
 
 <br/>
 
@@ -45,14 +45,17 @@ Reads the page you're on · answers with live web search and citations · acts o
 
 | Capability | How it works |
 | :--- | :--- |
-| **Reads the page** | Extracts clean, readable content from the active tab with Mozilla Readability — no copy-paste. |
-| **Answers with citations** | Live web search built into the model, with inline sources you can click. |
-| **Acts on pages for you** | An agent loop that can `click`, `type_text`, `scroll`, `navigate`, and manage tabs to finish a task. |
-| **Speaks answers aloud** | Streams text-to-speech as it writes, with an offline fallback voice and quota-aware caching. |
+| **Reads the page** | Extracts clean, readable content with Mozilla Readability, OpenGraph metadata, and reading time — no copy-paste. |
+| **Answers with citations** | Live web search built into the model, with sanitized inline sources you can click. |
+| **Acts on pages for you** | An agent loop that can `click`, `type_text`, `scroll`, `navigate`, `wait_for_selector`, and manage tabs. |
+| **Speaks answers aloud** | Streams text-to-speech with FreeTTS, quota-aware caching, and offline Web Speech API fallback. |
 | **Takes voice dictation** | Talk to it instead of typing — speech-to-text straight into the composer. |
 | **Highlight to act** | Select any text on a page and fire a one-shot action from the right-click menu. |
 | **Chooses its model** | Switch between Haiku 4.5, Sonnet 5, and Opus 4.8 per conversation. |
-| **Tracks the cost** | Live token and cost accounting, so you always know what a thread is worth. |
+| **Multi-format export** | Export threads anytime to standalone styled HTML, Markdown, or clean Plain Text. |
+| **Custom instructions** | Shape tone, formatting, and perspective with custom system instructions in Settings. |
+| **Keyboard friendly** | Fast navigation with shortcuts (`Alt+B`, `Ctrl+Shift+L`, `Ctrl+Shift+H`, `?` cheatsheet). |
+| **Tracks the cost** | Live token, cost accounting, and prompt cache hit ratio metrics. |
 
 <br/>
 
